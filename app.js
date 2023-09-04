@@ -64,7 +64,9 @@ app.post("/login", async (req, res) => {
     }
     // 3. check if the user already exists in the database
     const user = await User.findOne({ email });
-    if (user && bcrypt.compare(password, user.password)) {
+    // bcrypt.compare returns a promise, a promise is always a truthy value
+    // that's why it needs to be awaited to get the actual boolean value
+    if (user && (await bcrypt.compare(password, user.password))) {
       // 4. create token
       const token = jwt.sign(
         { user_id: user._id, email },
